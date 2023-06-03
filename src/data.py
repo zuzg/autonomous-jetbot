@@ -39,12 +39,12 @@ class RobotDataset(Dataset):
     Dataset for robot route images
     """
 
-    def __init__(self, images_annotations, transform: bool = True):
+    def __init__(self, images_annotations, transform_img: bool = True):
         images, forward_signals, left_signals = list(zip(*images_annotations))
         self.images = images
         self.forward_signals = forward_signals
         self.left_signals = left_signals
-        self.transform = transform
+        self.transform_img = transform_img
 
     def __len__(self):
         return len(self.images)
@@ -55,7 +55,7 @@ class RobotDataset(Dataset):
 
     def __getitem__(self, idx):
         image = self.images[idx]
-        if self.transform:
+        if self.transform_img:
             image = self.transform(image)
 
         forward_signal = np.clip(self.forward_signals[idx], -1, 1)
