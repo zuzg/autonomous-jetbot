@@ -20,7 +20,7 @@ class NvidiaCnn(nn.Module):
             nn.Dropout(0.5)
         )
         self.linear_layers = nn.Sequential(
-            nn.Linear(in_features=64 * 2 * 33, out_features=100),
+            nn.Linear(in_features=28224, out_features=100),
             nn.ELU(),
             nn.Linear(in_features=100, out_features=50),
             nn.ELU(),
@@ -29,8 +29,7 @@ class NvidiaCnn(nn.Module):
         )
 
     def forward(self, input):
-        input = input.view(input.size(0), 3, 70, 320)
         output = self.conv_layers(input)
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
-        return output
+        return output.double()

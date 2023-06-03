@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 from torch.utils.data import Dataset
+from torchvision.transforms import ToTensor
 
 
 def get_images_annotations(data_path) -> list[tuple[np.ndarray, float, float]]:
@@ -27,9 +28,9 @@ def get_images_annotations(data_path) -> list[tuple[np.ndarray, float, float]]:
 
                     img_path = img_dir + "/" + str(img_no).zfill(4) + ".jpg"
                     image = cv2.imread(img_path)
-                    image_reshaped = np.transpose(image, (2, 0, 1))
+                    # image_reshaped = np.transpose(image, (2, 0, 1))
                     images_annotations.append(
-                        (image_reshaped, forward_signal, left_signal)
+                        (image, forward_signal, left_signal)
                     )
     return images_annotations
 
@@ -50,8 +51,8 @@ class RobotDataset(Dataset):
         return len(self.images)
 
     def transform(self, image):
-        # TODO: preprocess image
-        return image
+        totensor = ToTensor()
+        return totensor(image)
 
     def __getitem__(self, idx):
         image = self.images[idx]
