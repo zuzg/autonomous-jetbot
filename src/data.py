@@ -39,7 +39,7 @@ class RobotDataset(Dataset):
     Dataset for robot route images
     """
 
-    def __init__(self, images_annotations, transform: bool = False):
+    def __init__(self, images_annotations, transform: bool = True):
         images, forward_signals, left_signals = list(zip(*images_annotations))
         self.images = images
         self.forward_signals = forward_signals
