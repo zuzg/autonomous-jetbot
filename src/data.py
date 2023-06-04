@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor
+from torchvision import transforms
 
 
 def get_images_annotations(data_path) -> list[tuple[np.ndarray, float, float]]:
@@ -29,9 +29,7 @@ def get_images_annotations(data_path) -> list[tuple[np.ndarray, float, float]]:
                     img_path = img_dir + "/" + str(img_no).zfill(4) + ".jpg"
                     image = cv2.imread(img_path)
                     # image_reshaped = np.transpose(image, (2, 0, 1))
-                    images_annotations.append(
-                        (image, forward_signal, left_signal)
-                    )
+                    images_annotations.append((image, forward_signal, left_signal))
     return images_annotations
 
 
@@ -40,24 +38,34 @@ class RobotDataset(Dataset):
     Dataset for robot route images
     """
 
-    def __init__(self, images_annotations, transform_img: bool = True):
+    def __init__(self, images_annotations, augment: bool = False):
         images, forward_signals, left_signals = list(zip(*images_annotations))
         self.images = images
         self.forward_signals = forward_signals
         self.left_signals = left_signals
-        self.transform_img = transform_img
+        self.augment = augment
 
     def __len__(self):
         return len(self.images)
 
     def transform(self, image):
-        totensor = ToTensor()
-        return totensor(image)
+        if self.augment:
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.ColorJitter(
+                        brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2
+                    ),
+                    transforms.RandomResizedCrop(size=224, scale=(0.9, 1.0)),
+                ]
+            )
+        else:
+            transform = transforms.ToTensor()
+        return transform(image)
 
     def __getitem__(self, idx):
         image = self.images[idx]
-        if self.transform_img:
-            image = self.transform(image)
+        image = self.transform(image)
 
         forward_signal = np.clip(self.forward_signals[idx], -1, 1)
         left_signal = np.clip(self.left_signals[idx], -1, 1)
