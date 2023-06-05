@@ -37,8 +37,8 @@ def train_one_epoch(
 
         optimizer.zero_grad()
         signals = reshape_signals(forward_signal, left_signal)
-        outputs = model(imgs)
-        loss = criterion(outputs, signals)
+        outputs = model(imgs.float())
+        loss = criterion(outputs.float(), signals.float())
         loss.backward()
         optimizer.step()
 
